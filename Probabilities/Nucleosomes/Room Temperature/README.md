@@ -1,0 +1,1 @@
+These probability files contain all distributions up to the trinucleotide level for all four combinations of crystallography/MD shape/stiffness parameters. They were used for the study in Appendix A in the PhD thesis of Marco Tompitak.

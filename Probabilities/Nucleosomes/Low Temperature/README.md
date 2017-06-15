@@ -1,0 +1,1 @@
+These probability files contain some low-temperature distributions for the pure crystallography (Olson) and the hybrid parameterizations, used in Tompitak et al. BMC Bioinformatics 18 (2017) 157 and Tompitak et al. Biophys. J. 112 (2017) 505-511.
