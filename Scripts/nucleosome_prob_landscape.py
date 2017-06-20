@@ -11,21 +11,19 @@ import numpy as np
 import sys
 import math
 
-sys.path.append('../')
+sys.path.append('../Backends/')
 from nucleosome_positioning import NPBackend
 
-
-if ( len(sys.argv) != 6 ):
-  if ( int(sys.argv[1]) != 1 or len(sys.argv) != 5 ):
-    print("Usage: python3 nucleosome_prob_landscape.py <order> <seqfile> <filelong> <fileshort>")
-    print("<order> is the length of the longest oligonucleotides to take into account,")
-    print("i.e. 2 for dinucleotides.")
-    print("<seqfile> is the path to the file that contains the sequence to analyze.")
-    print("<filelong> is the path to the file that contains probability distributions")
-    print("for the oligonicleotides of length <order>")
-    print("<fileshort> is the path to the file that contains probability distributions")
-    print("for the oligonicleotides of length <order>-1")
-    exit(0)
+if ( not (len(sys.argv) == 5 or (len(sys.argv) == 4 and int(sys.argv[1]) == 1)) ):
+        print("Usage: python3 nucleosome_prob_landscape.py <order> <seqfile> <filelong> <fileshort>")
+        print("<order> is the length of the longest oligonucleotides to take into account,")
+        print("i.e. 2 for dinucleotides.")
+        print("<seqfile> is the path to the file that contains the sequence to analyze.")
+        print("<filelong> is the path to the file that contains probability distributions")
+        print("for the oligonicleotides of length <order>")
+        print("<fileshort> is the path to the file that contains probability distributions")
+        print("for the oligonicleotides of length <order>-1")
+        exit(0)
 
 # Load in the command line arguments
 order = int(sys.argv[1])
@@ -47,11 +45,10 @@ if ( order > 1 ):
   fileshrt = sys.argv[4]
   rshptupshrt = (149-order,) + (4,)*(order-1)
   Ps = np.genfromtxt(fileshrt).reshape(rshptupshrt)
-  
   # Set up the backend
-  NP = NPBackend(order, Pl, Ps)
+  NP = NPBackend(order, 147, Pl, Ps)
 else:
-  NP = NPBackend(order, Pl)
+  NP = NPBackend(order, 147, Pl)
 
 # Calculate the landscape
 p = NP.ProbLandscape(Seq)

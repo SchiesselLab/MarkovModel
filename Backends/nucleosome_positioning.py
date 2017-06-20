@@ -38,7 +38,7 @@ class NPBackend:
     if ( order < 1 ):
       print("ERROR: order cannot be smaller than 1!", file=sys.stderr)
       exit(1)
-    if ( order > 1 and Ps==None ):
+    if ( order > 1 and Ps is None ):
       print("ERROR: order > 1 but no Ps specified!", file=sys.stderr)
       exit(1)
   
@@ -95,7 +95,7 @@ class NPBackend:
     """
     otup = (pos,)
     for i in range(order):
-      otup += (sequence[pos+i],)
+      otup += (int(sequence[pos+i]),)
     return otup
   
   @staticmethod
@@ -164,6 +164,36 @@ class NPBackend:
       prob *= pfac
     return prob
   
+  def Prob_Unwrapped(self, sequence, first_bound_site, last_bound_site):
+    if ( self.order == 1):
+      return self.ProbMono_Unwrapped(sequence, first_bound_site, last_bound_site)
+      
+    if (first_bound_site == 0):
+      bp_start = 0
+    else:
+      bp_start = NPBackend.bound_bp_left[first_bound_site-1]
+    if (last_bound_site == 14):
+      bp_end = 146
+    else:
+      bp_end = NPBackend.bound_bp_right[last_bound_site-1]
+    #print(bp_start, bp_end)
+    otups = self.OTup(sequence, bp_start, self.order-1)
+    #print(otups)
+    if (self.Ps[otups] == 0.0):
+      prob = 0.25
+    else:
+      prob = self.Ps[otups]
+      
+    for n in range(bp_start+self.order-1, bp_end+1):
+      otupl = self.OTup(sequence, n+1-self.order, self.order)
+      otups = self.OTup(sequence, n+1-self.order, self.order-1)
+      if (self.Pl[otupl] == 0.0 or self.Ps[otups] == 0.0):
+        #print("WARNING: Zero probability encountered!", file=sys.stderr)
+        pfac = 0.25
+      else:
+        pfac = self.Pl[otupl]/self.Ps[otups]
+      prob *= pfac
+    return prob
   
   def ProbMono(self, sequence):
     """
@@ -191,6 +221,26 @@ class NPBackend:
       
     # Loop through the rest.
     for n in range(self.order-1, 147):
+      otupl = self.OTup(sequence, n+1-self.order, self.order)
+      if (self.Pl[otupl] == 0.0):
+        pfac = 0.25
+      else:
+        pfac = self.Pl[otupl]
+      prob *= pfac
+    return prob
+  
+  def ProbMono_Unwrapped(sequence, first_bound_site, last_bound_site):
+      
+    bp_start = NPBackend.bound_bp_left[first_bound_site-1]
+    bp_end = NPBackend.bound_bp_right[last_bound_site-1]
+    
+    otupl = self.OTup(sequence, bp_start, self.order)
+    if (self.Pl[otupl] == 0.0):
+      prob = 0.25
+    else:
+      prob = self.Pl[otupl]
+      
+    for n in range(bp_start+self.order-1, bp_end+1):
       otupl = self.OTup(sequence, n+1-self.order, self.order)
       if (self.Pl[otupl] == 0.0):
         pfac = 0.25
@@ -300,7 +350,6 @@ class NPBackend:
     prob = np.zeros((N,))
     for i in range(N):
       if ( self.order > 1 ):
-        print(self.order)
         prob[i] = self.Prob(self.StrToSeq(longseq[i:i+self.seq_length]))
       else:
         prob[i] = self.ProbMono(self.StrToSeq(longseq[i:i+self.seq_length]))
